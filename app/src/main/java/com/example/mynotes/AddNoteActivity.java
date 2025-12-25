@@ -13,14 +13,16 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.core.content.ContextCompat;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
+import android.os.Build;
 public class AddNoteActivity extends AppCompatActivity {
 
     private EditText editNom, editDescription, editDate;
@@ -30,6 +32,10 @@ public class AddNoteActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     private String currentPhotoPath = null;
 
+    // Code de permission pour la caméra
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
+
+    // Launcher pour la caméra
     private final ActivityResultLauncher<Intent> cameraLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -48,6 +54,21 @@ public class AddNoteActivity extends AppCompatActivity {
                 }
             }
     );
+
+    // Launcher pour la permission de caméra
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(),
+                    isGranted -> {
+                        if (isGranted) {
+                            // Permission accordée, ouvrir la caméra
+                            openCamera();
+                        } else {
+                            // Permission refusée
+                            Toast.makeText(this,
+                                    "La permission caméra est nécessaire pour prendre des photos",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,19 +97,121 @@ public class AddNoteActivity extends AppCompatActivity {
         String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         editDate.setText(currentDate);
 
-        // Bouton photo
-        btnPhoto.setOnClickListener(v -> openCamera());
+        // Bouton photo - VERSION CORRIGÉE
+        btnPhoto.setOnClickListener(v -> checkCameraPermission());
 
         // Bouton sauvegarder
         btnSave.setOnClickListener(v -> saveNote());
     }
 
+    // NOUVELLE MÉTHODE : Vérifier la permission
+    private void checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            // Permission déjà accordée
+            openCamera();
+        } else {
+            // Demander la permission
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+        }
+    }
+
+
+
     private void openCamera() {
-        Intent takePictureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        // Détecter si on est sur émulateur
+        boolean isEmulator = false;
+
         try {
-            cameraLauncher.launch(takePictureIntent);
+            isEmulator = Build.FINGERPRINT.startsWith("generic")
+                    || Build.FINGERPRINT.startsWith("unknown")
+                    || Build.MODEL.contains("google_sdk")
+                    || Build.MODEL.contains("Emulator")
+                    || Build.MODEL.contains("Android SDK")
+                    || Build.MODEL.contains("sdk_gphone")
+                    || Build.MANUFACTURER.contains("Genymotion")
+                    || Build.BRAND.startsWith("generic")
+                    || Build.DEVICE.startsWith("generic")
+                    || Build.PRODUCT.contains("sdk")
+                    || Build.HARDWARE.contains("goldfish")
+                    || Build.HARDWARE.contains("ranchu");
         } catch (Exception e) {
-            Toast.makeText(this, "Erreur caméra: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            // En cas d'erreur, on considère que c'est un émulateur
+            isEmulator = true;
+        }
+
+        if (isEmulator) {
+            // MODE TEST POUR ÉMULATEUR
+            Toast.makeText(this, "Mode émulateur: image de test générée", Toast.LENGTH_SHORT).show();
+
+            try {
+                // Créer une image de test colorée avec du texte
+                int width = 400;
+                int height = 300;
+                Bitmap testBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+                // Remplir avec une couleur de fond
+                for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height; y++) {
+                        int color;
+                        if (x < width/2) {
+                            color = 0xFF4F46E5; // Violet (votre couleur primary)
+                        } else {
+                            color = 0xFFA855F7; // Violet clair (accent)
+                        }
+                        testBitmap.setPixel(x, y, color);
+                    }
+                }
+
+                // Ajouter du texte sur l'image
+                android.graphics.Canvas canvas = new android.graphics.Canvas(testBitmap);
+                android.graphics.Paint paint = new android.graphics.Paint();
+                paint.setColor(0xFFFFFFFF); // Blanc
+                paint.setTextSize(40);
+                paint.setTextAlign(android.graphics.Paint.Align.CENTER);
+                canvas.drawText("MyNotes", width/2, height/2, paint);
+                paint.setTextSize(20);
+                canvas.drawText("Image de test", width/2, height/2 + 50, paint);
+
+                imagePreview.setImageBitmap(testBitmap);
+                imagePreview.setVisibility(View.VISIBLE);
+
+                // Sauvegarder l'image de test
+                currentPhotoPath = saveImageToInternalStorage(testBitmap);
+
+                Toast.makeText(this, "Image de test créée avec succès", Toast.LENGTH_SHORT).show();
+                return;
+
+            } catch (Exception e) {
+                Toast.makeText(this, "Erreur création image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        }
+
+        // CODE POUR VRAI APPAREIL
+        try {
+            Intent takePictureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
+            // Vérifier si une app caméra est disponible
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                cameraLauncher.launch(takePictureIntent);
+            } else {
+                // Même sur vrai appareil, si pas d'app caméra, utiliser le mode test
+                Toast.makeText(this,
+                        "Aucune app caméra trouvée. Utilisation du mode test...",
+                        Toast.LENGTH_LONG).show();
+
+                // Créer une simple image de test
+                Bitmap simpleBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+                simpleBitmap.eraseColor(0xFF6200EE); // Violet
+
+                imagePreview.setImageBitmap(simpleBitmap);
+                imagePreview.setVisibility(View.VISIBLE);
+                currentPhotoPath = "no_camera_test.jpg";
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Erreur: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
@@ -113,7 +236,6 @@ public class AddNoteActivity extends AppCompatActivity {
             return null;
         }
     }
-
     private void saveNote() {
         String nom = editNom.getText().toString().trim();
         String description = editDescription.getText().toString().trim();
