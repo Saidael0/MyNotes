@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private NoteAdapter adapter;
     private DatabaseHelper dbHelper;
     private EditText searchEditText;
-    private TextView totalCount, highCount, lowCount, emptyMessage;
+    private TextView totalCount, highCount, mediumCount, lowCount, emptyMessage; // AJOUT: mediumCount
     private List<Note> allNotes;
 
     @Override
@@ -30,11 +30,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialiser les vues
+        // Initialiser les vues - AJOUTER mediumCount
         recyclerView = findViewById(R.id.recyclerView);
         searchEditText = findViewById(R.id.searchEditText);
         totalCount = findViewById(R.id.totalCount);
         highCount = findViewById(R.id.highCount);
+        mediumCount = findViewById(R.id.mediumCount); // AJOUT: cette ligne
         lowCount = findViewById(R.id.lowCount);
         emptyMessage = findViewById(R.id.emptyMessage);
         FloatingActionButton fabAdd = findViewById(R.id.fabAdd);
@@ -105,12 +106,32 @@ public class MainActivity extends AppCompatActivity {
     private void updateStatistics() {
         totalCount.setText(String.valueOf(allNotes.size()));
 
-        int high = 0, low = 0;
+        int high = 0, medium = 0, low = 0;
         for (Note note : allNotes) {
-            if (note.getPriorite().equals("Haute")) high++;
-            if (note.getPriorite().equals("Basse")) low++;
+            String priorite = note.getPriorite();
+            if (priorite != null) {
+                switch (priorite) {
+                    case "Haute":
+                        high++;
+                        break;
+                    case "Moyenne":
+                        medium++;
+                        break;
+                    case "Basse":
+                        low++;
+                        break;
+                }
+            }
         }
+
         highCount.setText(String.valueOf(high));
+        mediumCount.setText(String.valueOf(medium)); // AJOUT: cette ligne
         lowCount.setText(String.valueOf(low));
+
+        // Afficher dans les logs pour debug
+        System.out.println("Statistiques - Total: " + allNotes.size() +
+                ", Haute: " + high +
+                ", Moyenne: " + medium +
+                ", Basse: " + low);
     }
 }
