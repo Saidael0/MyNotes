@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Indicateur de priorité (barre gauche) -->
+        <View
+            android:id="@+id/priorityIndicator"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="@color/primary"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Nom de la note -->
+            <TextView
+                android:id="@+id/textNom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Titre de la note"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/gray_dark"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+
+            <!-- Description -->
+            <TextView
+                android:id="@+id/textDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Description de la note..."
+                android:textSize="14sp"
+                android:textColor="@color/gray_medium"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Informations (Date, Priorité, Photo) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Date -->
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@android:drawable/ic_menu_recent_history"
+                    app:tint="@color/gray_medium" />
+
+                <TextView
+                    android:id="@+id/textDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2024-12-25"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray_medium"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="16dp"/>
+
+                <!-- Priorité -->
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@android:drawable/ic_dialog_info"
+                    app:tint="@color/gray_medium" />
+
+                <TextView
+                    android:id="@+id/textPriorite"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Moyenne"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="16dp"/>
+
+                <!-- Icône Photo -->
+                <ImageView
+                    android:id="@+id/iconPhoto"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@android:drawable/ic_menu_camera"
+                    android:visibility="gone"
+                    app:tint="@color/primary" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">MyNotes</string>
+    <string name="add_note">Nouvelle Note</string>
+    <string name="note_details">Détails de la Note</string>
+    <string name="title_hint">Titre de la note</string>
+    <string name="description_hint">Description...</string>
+    <string name="date_label">Date</string>
+    <string name="priority_label">Priorité</string>
+    <string name="save_button">Enregistrer</string>
+    <string name="back_button">Retour</string>
+    <string name="delete_button">Supprimer</string>
+    <string name="search_hint">Rechercher...</string>
+    <string name="take_photo">Prendre une photo</string>
+    <string name="no_notes">Aucune note disponible</string>
+    <string name="edit_note">Modifier la note</string>
+    <string name="modify_button">Modifier</string>
+    <string name="cancel_button">Annuler</string>
+    <string name="change_photo">Changer la photo</string>
+
+    <!-- Priorities -->
+    <string-array name="priorities">
+        <item>Basse</item>
+        <item>Moyenne</item>
+        <item>Haute</item>
+    </string-array>
+</resources>
